@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
-import static com.pedropathing.api.Paths.*;
 import com.pedropathing.paths.Path;
 
 import com.pedropathing.ivy.Command;
@@ -20,37 +19,45 @@ import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-import static java.util.concurrent.locks.LockSupport.park;
-
-import android.os.DropBoxManager;
-
 @Autonomous
-public class CloseBlue1 extends OpMode {
+public class GardenBlue1 extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
 
-    private final Pose startingSpot = p.of(80, 130, 90);
-    private final Pose score = p.of(48, 48, 90);
+    private final Pose start = p.of(79.2689, 132.8973, 90);
+    private final Pose path1 = p.of(79.2689, 129.4529, 90);
+    private final Pose point2 = p.of(133.372, 133.304, -0.1927);
+    private final Pose point2Control1 = p.of(89.62, 133.4716, 0);
+    private final Pose point3Start = p.of(133.372, 133.304, 0);
+    private final Pose point3 = p.of(79.2378, 129.7942, 90);
+    private final Pose point3Control1 = p.of(118.2524, 125.5067, 0);
+    private final Pose point4 = p.of(130.7333, 93.9462, -178.6933);
+    private final Pose point4Control1 = p.of(105.3013, 93.1791, 0);
+    private final Pose point5 = p.of(129.5724, 52.2778, -86.2852);
+    private final Pose point5Control1 = p.of(94.2876, 96.6773, 0);
+    private final Pose point5Control2 = p.of(129.1218, 64.2578, 0);
 
-    private final Pose control = p.of(135, 128, 90);
-    private final Pose end = p.of(130, 48, 90);
-    private TelemetryMessage telemetryData;
 
-    public Path scorePreload() {
-        return Paths.line(startingSpot, score);
+    public Path path1() {
+        return Paths.line(start, path1).constant(path1);
     }
-    public Path park() {
-        return Paths.curve(score, control, end);
+    public Path path2() {
+        return Paths.curve(path1, point2Control1, point2).tangent();
     }
-    public Path compoundPath() {
-        return Paths.path(scorePreload(), park());
+    public Path path3() {return Paths.curve(point3Start, point3Control1, point3).linear(point3Start, point3);}
+    public Path path4() {
+        return Paths.curve(point3, point4Control1, point4).reverseTangent();
     }
+    public Path path5() {return Paths.curve(point4, point5Control1, point5Control2, point5).tangent();}
 
     private Command autoRoutine() {
         return sequential(
-                follow(follower, scorePreload()),
+                follow(follower, path1()),
                 // Add shooting commands here
-                follow(follower, park())
+                follow(follower, path2()),
+                follow(follower, path3()),
+                follow(follower, path4()),
+                follow(follower, path5())
         );
     }
 
@@ -58,7 +65,7 @@ public class CloseBlue1 extends OpMode {
     public void init() {
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
-        follower.setPose(startingSpot);
+        follower.setPose(start);
         follower.update();
     }
     @Override
@@ -70,9 +77,9 @@ public class CloseBlue1 extends OpMode {
         follower.update();
         Scheduler.execute();
         // add your other methods needed in the loop here
-        telemetryData.addData("X", follower.pose().x());
-        telemetryData.addData("Y", follower.pose().y());
-        telemetryData.addData("Heading", Math.toDegrees(follower.pose().heading()));
+        telemetry.addData("X", follower.pose().x());
+        telemetry.addData("Y", follower.pose().y());
+        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Follower Mode", follower.mode());
         // We will add these two, but you can use the many other follower methods aswell in your own code!
         telemetry.addData("Path completion", follower.completion());
