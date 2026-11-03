@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.OpModeStorage;
+import org.firstinspires.ftc.teamcode.TurretController;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
@@ -15,8 +16,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import com.pedropathing.api.PoseFactory;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import pedroPathing.subsystems.TurretController;
 
 @TeleOp(name = "BlueCLose")
 public class Blue extends OpMode {
@@ -24,7 +30,6 @@ public class Blue extends OpMode {
     private Follower follower;
     private DcMotor shooter1;
     private DcMotor shooter2;
-    private DcMotor ballstopper;
     private Servo ballholder;
 
     @Override
@@ -32,17 +37,16 @@ public class Blue extends OpMode {
         follower = Constants.create(hardwareMap);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
+
         shooter1 = hardwareMap.get(DcMotor.class, "shooter1");
-        shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
-        ballstopper = hardwareMap.get(DcMotor.class, "ballstopper");
-        ballholder = hardwareMap.get(Servo.class, "ballholder");
-
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        ballstopper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
-        ballstopper.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        ballholder = hardwareMap.get(Servo.class, "ballholder");
 
         telemetry.update();
     }
@@ -56,10 +60,11 @@ public class Blue extends OpMode {
         DrivePowers powers = ManualDrive.fieldCentric(
                 gamepad1.left_stick_y,
                 gamepad1.left_stick_x,
-                gamepad1.right_stick_x,
+                -gamepad1.right_stick_x,
                 follower.pose().heading()
         );
         ManualDrive.driveOrHold(follower, powers);
+
         // shoot button
         if (gamepad1.right_bumper) {
             intake.setPower(1);
@@ -104,11 +109,10 @@ public class Blue extends OpMode {
         }
 
         follower.update();
-        Pose robotPose = follower.pose();
 
-        telemetry.addData("Robot X", robotPose.x());
-        telemetry.addData("Robot Y", robotPose.y());
-        telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
+        telemetry.addData("X", follower.pose().x());
+        telemetry.addData("Y", follower.pose().y());
+        telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("shooter", ((DcMotorEx) shooter1).getVelocity());
     }
 }
