@@ -23,6 +23,7 @@ public class BluePID extends OpMode {
     private DcMotorEx shooter1;
     private DcMotorEx shooter2;
     private Servo ballholder;
+    private TurretController turret;
 
     // PIDF constants
     private double kF = 0.00085;//lower second number to increase speed up
@@ -50,6 +51,7 @@ public class BluePID extends OpMode {
 
         ballholder = hardwareMap.get(Servo.class, "ballholder");
 
+        turret = new TurretController(hardwareMap, "turret", follower);
         telemetry.update();
     }
 
@@ -127,6 +129,7 @@ public class BluePID extends OpMode {
         }
 
         follower.update();
+        turret.update();
         telemetry.addData("X", follower.pose().x());
         telemetry.addData("Y", follower.pose().y());
         telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
