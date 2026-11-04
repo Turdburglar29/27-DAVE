@@ -125,13 +125,13 @@ public class BluePID extends OpMode {
 //Velocity Set
         double targetVelocity = 0; //resets velocity input
         if (gamepad1.square) {
-            targetVelocity = 850;
+            targetVelocity = 750;
         }
         else if (gamepad1.cross) {
-            targetVelocity = 760;
+            targetVelocity = 640;
         }
         else if (gamepad1.circle) {
-            targetVelocity = 700;
+            targetVelocity = 610;
         }
 //PID Set Shooter Speed
         if (targetVelocity > 0) {
@@ -139,8 +139,8 @@ public class BluePID extends OpMode {
             double shooterPower = computeFlywheelPower(targetVelocity, measuredVelocity);
             shooter1.setPower(shooterPower);
 //Shooter check
-            shooterReady = measuredVelocity >= targetVelocity - 20 &&
-                           measuredVelocity <= targetVelocity + 20;;
+            shooterReady = measuredVelocity >= targetVelocity - 01 &&
+                           measuredVelocity <= targetVelocity + 40;;
             if (shooterReady) {
                 intake.setPower(1);
             } else {
