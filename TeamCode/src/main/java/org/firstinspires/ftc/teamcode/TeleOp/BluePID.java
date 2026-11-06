@@ -68,7 +68,7 @@ public class BluePID extends OpMode {
     }
     @Override
     public void loop() {
-        double turn = -gamepad1.right_stick_x;
+        double turn = -gamepad2.right_stick_x;
 //auto aim right
         if (gamepad1.dpad_right) {
             double targetHeading = Math.toRadians(270);
@@ -95,8 +95,8 @@ public class BluePID extends OpMode {
         }
 //joystick Driving
         DrivePowers powers = ManualDrive.fieldCentric(
-                gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
+                gamepad2.left_stick_y,
+                gamepad2.left_stick_x,
                 turn,
                 follower.pose().heading()
         );
@@ -111,27 +111,27 @@ public class BluePID extends OpMode {
 //Intake /w ballholder delayed released
         if (gamepad1.left_bumper) {
             intake.setPower(1);
-            ballholder.setPosition(0);
+            ballholder.setPosition(.1);
             ballHolderReleaseTime = System.currentTimeMillis();
             ballHolderTimerActive = true;
         } else {
             if (ballHolderTimerActive &&
-                    System.currentTimeMillis() - ballHolderReleaseTime < BALL_HOLDER_DELAY_MS) {ballholder.setPosition(0);
+                    System.currentTimeMillis() - ballHolderReleaseTime < BALL_HOLDER_DELAY_MS) {ballholder.setPosition(.1);
             } else {
-                ballholder.setPosition(.45);
+                ballholder.setPosition(.6);
                 ballHolderTimerActive = false;
             }
         }
 //Velocity Set
         double targetVelocity = 0; //resets velocity input
         if (gamepad1.square) {
-            targetVelocity = 750;
+            targetVelocity = 760;
         }
         else if (gamepad1.cross) {
             targetVelocity = 640;
         }
         else if (gamepad1.circle) {
-            targetVelocity = 610;
+            targetVelocity = 620;
         }
 //PID Set Shooter Speed
         if (targetVelocity > 0) {
@@ -139,8 +139,8 @@ public class BluePID extends OpMode {
             double shooterPower = computeFlywheelPower(targetVelocity, measuredVelocity);
             shooter1.setPower(shooterPower);
 //Shooter check
-            shooterReady = measuredVelocity >= targetVelocity - 01 &&
-                           measuredVelocity <= targetVelocity + 40;;
+            shooterReady = measuredVelocity >= targetVelocity - 20 &&
+                           measuredVelocity <= targetVelocity + 20;;
             if (shooterReady) {
                 intake.setPower(1);
             } else {
