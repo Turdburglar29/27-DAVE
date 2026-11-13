@@ -31,7 +31,8 @@ public class GardenBlue1shoot extends OpMode {
     private DcMotorEx shooter1;
     private Servo ballholder;
 
-    private double targetVelocity = 740;
+    private double targetVelocity = 300;
+    private double idleVelocity = 300;
 
     private double lastError = 0;
     private long lastTime = System.nanoTime();
@@ -53,8 +54,8 @@ public class GardenBlue1shoot extends OpMode {
     private final Pose start = p.of(79.2689, 132.8973, 90);
     private final Pose path1 = p.of(79.2689, 129.4529, 90);
     private final Pose point2Start = p.of(79.2689, 129.4529, 90);
-    private final Pose point2 = p.of(137.3267, 133.2436, 90);
-    private final Pose point2Control1 = p.of(119.3484, 117.1572, 0);
+    private final Pose point2 = p.of(136, 132, 70);
+    private final Pose point2Control1 = p.of(111.85, 125.55, 70);
     private final Pose point3Start = p.of(138.3267, 133.2436, 90);
     private final Pose point3 = p.of(79.2378, 129.7942, 90);
     private final Pose point3Control1 = p.of(118.2524, 125.5067, 0);
@@ -133,21 +134,23 @@ public class GardenBlue1shoot extends OpMode {
             firstShotDone = true;
         }
  // Finish first shot timer
-        if (feeding && System.currentTimeMillis() - shotStartTime > 500) {
+        if (feeding && System.currentTimeMillis() - shotStartTime > 600) {
             feeding = false;
 // Start intake for collection
+            shooter1.setPower(idleVelocity);
             intake.setPower(1);
             ballholder.setPosition(0.1);
         }
 // Start Path 2 and Path 3 only
         if (firstShotDone && !feeding && !autoContinued) {
+            ballholder.setPosition(0.1);
             autoContinued = true;
             schedule(sequential(follow(follower, path2()), follow(follower, path3())));
         }
 // STOP INTAKE AFTER PATH 2
         if (!intakeStoppedAfterPath2 && autoContinued && follower.pathIndex() == 1) {
-            intake.setPower(0);
-            ballholder.setPosition(0.6);
+            intake.setPower(1);
+            ballholder.setPosition(0.1);
             intakeStoppedAfterPath2 = true;
         }
 // SECOND SHOT AFTER PATH 3
@@ -160,6 +163,7 @@ public class GardenBlue1shoot extends OpMode {
         }
 // Finish second shot timer
         if (secondShotFeeding && System.currentTimeMillis() - secondShotStartTime > 500) {
+            shooter1.setPower(0);
             intake.setPower(0);
             ballholder.setPosition(0.1);
             secondShotFeeding = false;
