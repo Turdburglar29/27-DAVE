@@ -20,6 +20,8 @@ public class BluePID extends OpMode {
     private DcMotorEx shooter1;
  // private DcMotorEx shooter2;
     private Servo ballholder;
+    private Servo rightsideofflower;
+    private Servo leftflowerjohnegbert;
     private TurretController turret;
 //shooter PID
     private boolean shooterReady = false;
@@ -47,11 +49,15 @@ public class BluePID extends OpMode {
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);*/
         ballholder = hardwareMap.get(Servo.class, "ballholder");
+        rightsideofflower = hardwareMap.get(Servo.class, "rightsideofflower");
+        leftflowerjohnegbert = hardwareMap.get(Servo.class, "leftflowerjohnegbert");
         turret = new TurretController(hardwareMap, "turret", follower);
         telemetry.update();
     }
     @Override
     public void start() {
+        rightsideofflower.setPosition(0);
+        leftflowerjohnegbert.setPosition(1);
         follower.setPose(OpModeStorage.autonomousEndPose);
         follower.update();
     }
@@ -108,6 +114,14 @@ public class BluePID extends OpMode {
         } else {
             intake.setPower(0);
         }
+//flower intake bar
+        if (gamepad1.dpad_down) {
+            rightsideofflower.setPosition(1); //high
+            leftflowerjohnegbert.setPosition(0.8); //low
+        }else {
+            rightsideofflower.setPosition(0); //high
+            leftflowerjohnegbert.setPosition(1); //low
+        }
 //Intake /w ballholder delayed released
         if (gamepad1.left_bumper) {
             intake.setPower(1);
@@ -121,6 +135,11 @@ public class BluePID extends OpMode {
                 ballholder.setPosition(.6);
                 ballHolderTimerActive = false;
             }
+        }
+//PID Set Shooter Speed
+        if (gamepad1.dpad_down) {
+        rightsideofflower.setPosition(.9); //high
+        leftflowerjohnegbert.setPosition(.0); //low
         }
 //Velocity Set
         double targetVelocity = 0; //resets velocity input
@@ -139,8 +158,7 @@ public class BluePID extends OpMode {
             double shooterPower = computeFlywheelPower(targetVelocity, measuredVelocity);
             shooter1.setPower(shooterPower);
 //Shooter check
-            shooterReady = measuredVelocity >= targetVelocity - 20 &&
-                           measuredVelocity <= targetVelocity + 20;;
+            shooterReady = measuredVelocity >= targetVelocity - 20 && measuredVelocity <= targetVelocity + 20;;
             if (shooterReady) {
                 intake.setPower(1);
             } else {
@@ -148,22 +166,17 @@ public class BluePID extends OpMode {
             }
         } else {
             shooter1.setPower(0);
-            if (!gamepad1.right_bumper
-                    && !gamepad1.left_bumper) {
+            if (!gamepad1.right_bumper && !gamepad1.left_bumper) {
                 intake.setPower(0);
             }
         }
 //Manual X & Y reset
         if (gamepad1.optionsWasPressed()) {
             Pose cornerPose = new Pose(10.5, 10.5, Math.toRadians(270));
-            follower.setPose(
-                    cornerPose
-            );
+            follower.setPose(cornerPose);
         }
-
         follower.update();
         turret.update();
-
         telemetry.addData("X", follower.pose().x());
         telemetry.addData("Y", follower.pose().y());
         telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));

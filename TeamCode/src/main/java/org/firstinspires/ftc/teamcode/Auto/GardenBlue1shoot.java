@@ -60,7 +60,7 @@ public class GardenBlue1shoot extends OpMode {
     private final Pose point3 = p.of(79.2378, 129.7942, 90);
     private final Pose point3Control1 = p.of(118.2524, 125.5067, 0);
     private final Pose point4Start = p.of(79.2378, 129.7942, 90);
-    private final Pose point4 = p.of(130.7333, 93.9462, 0);
+    private final Pose point4 = p.of(126.1732, 94.3546, 0);
     private final Pose point4Control1 = p.of(105.3013, 93.1791, 0);
     private final Pose point5 = p.of(130.3641, 45.7782, 93.8461);
     private final Pose point5Control1 = p.of(94.2876, 96.6773, 0);
